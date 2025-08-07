@@ -5,8 +5,8 @@ import SingUpForm from "./components/sing-up-form";
 
 const Authentication = () => {
   return (
-    <div className="flex w-full flex-col items-center justify-center gap-6 p-5">
-      <Tabs defaultValue="sing-in">
+    <div className="flex w-full flex-col items-center justify-center gap-6 p-5 sm:min-h-full">
+      <Tabs className="w-full sm:max-w-[400px]" defaultValue="sing-in">
         <TabsList>
           <TabsTrigger value="sing-in">Entrar</TabsTrigger>
           <TabsTrigger value="sing-up">Criar conta</TabsTrigger>

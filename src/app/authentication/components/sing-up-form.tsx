@@ -25,13 +25,19 @@ import { Input } from "@/components/ui/input";
 const formSchema = z
   .object({
     name: z.string().trim().min(1, "Digite um nome válido."),
-    email: z.email("Email inválido."),
-    password: z.string().min(8, "Digite uma senha válida."),
-    passwordConfirmation: z.string().min(8, "Digite uma senha válida."),
+    email: z.string().email("Digite um email válido."),
+    password: z.string().min(8, "Digite uma senha com 8 caracteres ou mais."),
+    passwordConfirmation: z
+      .string()
+      .min(8, "Digite uma senha com 8 caracteres ou mais."),
   })
   .refine((data) => data.password === data.passwordConfirmation, {
     message: "As senhas não coincidem.",
     path: ["passwordConfirmation"],
+  })
+  .refine((data) => data.password !== data.name, {
+    message: "A senha não pode ser igual ao nome.",
+    path: ["password"],
   });
 
 type FormValues = z.infer<typeof formSchema>;
