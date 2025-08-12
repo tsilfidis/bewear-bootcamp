@@ -5,6 +5,7 @@ import CategorySelector from "@/components/common/cartegory-selector";
 import Footer from "@/components/common/Footer";
 import Header from "@/components/common/header";
 import ProductList from "@/components/common/product-list";
+import Tradelist from "@/components/common/trade-list";
 import { db } from "@/db";
 import { productTable } from "@/db/schema";
 
@@ -37,6 +38,8 @@ const Home = async () => {
             className="h-auto w-full"
           />
         </div>
+
+        <Tradelist />
 
         <ProductList products={products} title="Mais Vendidos" />
 
