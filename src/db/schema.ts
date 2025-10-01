@@ -135,31 +135,30 @@ export const shippingAddressTable = pgTable("shipping_address", {
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
   recipientName: text("name").notNull(),
-  street: text().notNull(),
-  number: text().notNull(),
-  complement: text(),
-  city: text().notNull(),
-  state: text().notNull(),
-  neighborhood: text().notNull(),
-  zipCode: text().notNull(),
-  country: text().notNull(),
-  phone: text().notNull(),
-  email: text().notNull(),
-  cpfOrCnpj: text().notNull(),
+  street: text("street").notNull(),
+  number: text("number").notNull(),
+  complement: text("complement"),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  neighborhood: text("neighborhood").notNull(),
+  zipCode: text("zip_code").notNull(),
+  country: text("country").notNull(),
+  phone: text("phone").notNull(),
+  email: text("email").notNull(),
+  cpfOrCnpj: text("cpf_or_cnpj").notNull(),
   createdAt: timestamp("create_at").notNull().defaultNow(),
-  updatedAt: timestamp("update_at").notNull().defaultNow(),
 });
 
 export const shippingAddressRelations = relations(
   shippingAddressTable,
   ({ one }) => ({
     user: one(userTable, {
-      fields: [shippingAddressTable.id],
+      fields: [shippingAddressTable.userId],
       references: [userTable.id],
     }),
     cart: one(cartTable, {
       fields: [shippingAddressTable.id],
-      references: [cartTable.id],
+      references: [cartTable.shippingAddressId],
     }),
   }),
 );
@@ -169,9 +168,10 @@ export const cartTable = pgTable("cart", {
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
-  shippingAddressId: uuid("shipping_address_id")
-    .notNull()
-    .references(() => shippingAddressTable.id, { onDelete: "set null" }),
+  shippingAddressId: uuid("shipping_address_id").references(
+    () => shippingAddressTable.id,
+    { onDelete: "set null" },
+  ),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
