@@ -1,14 +1,14 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
+import { addProductToCart } from "@/actions/add-cart-product";
+import { decreaseCartProductQuantity } from "@/actions/decrease-cart-product-quantity";
+import { removeProductFromCart } from "@/actions/remove-cart-product";
 import { formatCentsToBRL } from "@/helpers/money";
 
 import { Button } from "../ui/button";
-import { removeProductFromCart } from "@/actions/remove-cart-product";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { decreaseCartProductQuantity } from "@/actions/decrease-cart-product-quantity";
-import { addProductToCart } from "@/actions/add-cart-product";
 
 interface CartItemProps {
   id: string;
