@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ShoppingBasketIcon } from "lucide-react";
+import { ShoppingCartIcon } from "lucide-react";
 
 import { getCart } from "@/actions/get-cart";
 import { formatCentsToBRL } from "@/helpers/money";
@@ -27,12 +27,12 @@ const Cart = () => {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon">
-          <ShoppingBasketIcon />
+          <ShoppingCartIcon />
         </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Carrinho</SheetTitle>
+          <SheetTitle className="flex gap-2"><ShoppingCartIcon /> Carrinho</SheetTitle>
         </SheetHeader>
 
         <div className="flex h-full flex-col px-5 pb-6">
