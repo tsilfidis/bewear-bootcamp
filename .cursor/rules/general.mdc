@@ -24,6 +24,7 @@ Você é um engenheiro de software senior especializado em desenvolvimento web m
 - Sempre use TypeScript para escrever código.
 - DRY (Don't Repeat Yourself). Eveite duplicidade de código. Quando necessário, crie funções/componentes reutilizáveis.
 - NUNCA escreva comentários no seu código.
+- NUNCA rode "npm run dev" para verificar se as mudanças estão funcionando.
 
 **Regras do React e Next.js:**
 
@@ -35,4 +36,5 @@ Você é um engenheiro de software senior especializado em desenvolvimento web m
 - As Server Actions devem ser armazenadas em "src/actions" (siga o padrão de nomeclatura das já existentes). Cada server action deve ficar em uma pasta com dois arquivos: index.ts e schema.ts. SEMPRE veja [add-card-product](mdc:src\actions\add-cart-product) e use-o como referência.
 - Sempre que for necessário interagir com o bando de dados, use o [index.ts](mdc:src\db\index.ts).
 - Use React Query para interagir com Server Actions em Client Components. SEMPRE use os componentes [cart-item.tsx](mdc:src\components\common\cart-item.tsx) e [cart.tsx](mdc:src\components\common\cart.tsx) como exemplo.
-- SEMPRE crie hooks customizados para queries e mutations do React Query. SEMPRE use os compo
+- SEMPRE crie hooks customizados para queries e mutations do React Query. SEMPRE use os [use-cart.ts](mdc:src\hooks\queries\use-cart.ts) e [use-decrease-cart-product.ts](mdc:src\hooks\mutations\use-decrease-cart-product.ts) como referência.
+- SEMPRE use a biblioteca "react-number-format" para criar inputs com mascaras.
