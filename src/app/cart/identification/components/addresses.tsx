@@ -1,9 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
+import { toast } from "sonner";
 import z from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -19,10 +21,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 
-const addressFormSchema = z.object({
+const formSchema = z.object({
   email: z.email("Digite um e-mail válido"),
-  name: z.string().min(1, "O nome completo é obrigatório"),
+  fullName: z.string().min(1, "O nome completo é obrigatório"),
   cpf: z.string().min(11, "O CPF é obrigatório"),
   phone: z.string().min(1, "O celular é obrigatório"),
   zipCode: z.string().min(8, "O CEP é obrigatório"),
@@ -34,14 +37,17 @@ const addressFormSchema = z.object({
   state: z.string().min(1, "O estado é obrigatório"),
 });
 
-type AddressFormValues = z.infer<typeof addressFormSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
 const Addresses = () => {
-  const form = useForm<AddressFormValues>({
-    resolver: zodResolver(addressFormSchema),
+  const [selectedAdress, setSelectedAdress] = useState<string | null>(null);
+  const CreateShippingAddressMutation = useCreateShippingAddress();
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      name: "",
+      fullName: "",
       cpf: "",
       phone: "",
       zipCode: "",
@@ -53,11 +59,18 @@ const Addresses = () => {
       state: "",
     },
   });
-  const onSubmit = (data: AddressFormValues) => {
-    console.log(data);
-    // Lógica de submissão aqui
+
+  const onSubmit = async (values: FormValues) => {
+    try {
+      await CreateShippingAddressMutation.mutateAsync(values);
+      toast.success("Endereço criado com sucesso!");
+      form.reset();
+      setSelectedAdress(null);
+    } catch (error) {
+      toast.error("Erro ao criar endereço!");
+    }
   };
-  const [selectedAdress, setSelectedAdress] = useState<string | null>(null);
+
   return (
     <Card>
       <CardHeader>
@@ -80,38 +93,40 @@ const Addresses = () => {
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-4 pt-4"
             >
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>E-mail</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Digite seu e-mail" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome completo</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Digite seu nome completo"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>E-mail</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Digite seu e-mail" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome completo</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Digite seu nome completo"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <FormField
                   control={form.control}
                   name="cpf"
@@ -156,72 +171,73 @@ const Addresses = () => {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="zipCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>CEP</FormLabel>
+                      <FormControl>
+                        <PatternFormat
+                          format="#####-###"
+                          customInput={Input}
+                          placeholder="00000-000"
+                          onValueChange={(values) => {
+                            field.onChange(values.value);
+                          }}
+                          value={field.value}
+                          onBlur={field.onBlur}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-
-              <FormField
-                control={form.control}
-                name="zipCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>CEP</FormLabel>
-                    <FormControl>
-                      <PatternFormat
-                        format="#####-###"
-                        customInput={Input}
-                        placeholder="00000-000"
-                        onValueChange={(values) => {
-                          field.onChange(values.value);
-                        }}
-                        value={field.value}
-                        onBlur={field.onBlur}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Endereço</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Rua, Avenida, etc." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                 <FormField
                   control={form.control}
-                  name="number"
+                  name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Número</FormLabel>
+                      <FormLabel>Endereço</FormLabel>
                       <FormControl>
-                        <Input placeholder="123" {...field} />
+                        <Input placeholder="Rua, Avenida, etc." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="complement"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Complemento (Opcional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Apto 101" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Número</FormLabel>
+                        <FormControl>
+                          <Input placeholder="123" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="complement"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Complemento (Opcional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Apto 101" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -266,8 +282,19 @@ const Addresses = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full">
-                Continuar com o pagamento
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={CreateShippingAddressMutation.isPending}
+              >
+                {CreateShippingAddressMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                    &quot;Salvando...&quot;
+                  </>
+                ) : (
+                  "Salvar Endereço"
+                )}
               </Button>
             </form>
           </Form>
