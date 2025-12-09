@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -24,7 +24,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
-import { useCart } from "@/hooks/queries/use-cart";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
 
 const formSchema = z.object({
@@ -45,22 +44,17 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface AddressesProps {
   shippingAddresses: (typeof shippingAddressTable.$inferSelect)[];
+  defaultShippingAddressId: string | null;
 }
 
-const Addresses = ({ shippingAddresses }: AddressesProps) => {
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+const Addresses = ({ shippingAddresses, defaultShippingAddressId }: AddressesProps) => {
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(
+    defaultShippingAddressId || null,);
   const createShippingAddressMutation = useCreateShippingAddress();
   const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
   const { data: addresses, isLoading } = useUserAddresses({
     initialData: shippingAddresses,
   });
-  const { data: cart } = useCart();
-
-  useEffect(() => {
-    if (cart?.shippingAddress?.id) {
-      setSelectedAddress(cart.shippingAddress.id);
-    }
-  }, [cart]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -97,12 +91,13 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
   };
 
   const handleGoToPayment = async () => {
-    if (selectedAddress || selectedAddress === "add_new") return;
+    if (!selectedAddress || selectedAddress === "add_new") return;
+
     try {
       await updateCartShippingAddressMutation.mutateAsync({
-        shippingAddressId: selectedAddress,
+        shippingAddressId: selectedAddress ?? "",
       });
-      toast.success("Endereço selecionado para entrega!");
+      toast.success("Endereço para entrega selecionado!");
     } catch (error) {
       toast.error("Erro ao vincular endereço ao carrinho!");
     }
