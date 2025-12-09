@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
+import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
 
 const formSchema = z.object({
   email: z.email("Digite um e-mail válido"),
@@ -41,7 +42,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 const Addresses = () => {
   const [selectedAdress, setSelectedAdress] = useState<string | null>(null);
-  const CreateShippingAddressMutation = useCreateShippingAddress();
+  const createShippingAddressMutation = useCreateShippingAddress();
+  const { data: addresses, isLoading } = useUserAddresses();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -62,10 +64,11 @@ const Addresses = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await CreateShippingAddressMutation.mutateAsync(values);
+      const newAddress =
+        await createShippingAddressMutation.mutateAsync(values);
       toast.success("Endereço criado com sucesso!");
       form.reset();
-      setSelectedAdress(null);
+      setSelectedAdress(newAddress.id);
     } catch (error) {
       toast.error("Erro ao criar endereço!");
     }
@@ -77,16 +80,57 @@ const Addresses = () => {
         <CardTitle>Identificação</CardTitle>
       </CardHeader>
       <CardContent>
-        <RadioGroup value={selectedAdress} onValueChange={setSelectedAdress}>
-          <Card>
-            <CardContent>
-              <div className="flex items-center gap-3">
-                <RadioGroupItem value="add_new" id="add_new" />
-                <Label htmlFor="add_new">Adicionar novo Endereço</Label>
+        {isLoading ? (
+          <div className="py-4 text-center">
+            <p>Carregando endereços...</p>
+          </div>
+        ) : (
+          <RadioGroup value={selectedAdress} onValueChange={setSelectedAdress}>
+            {addresses?.length === 0 && (
+              <div className="py-4 text-center">
+                <p className="text-muted-foreground">
+                  você ainda não tem endereços cadastrados.
+                </p>
               </div>
-            </CardContent>
-          </Card>
-        </RadioGroup>
+            )}
+
+            {addresses?.map((address) => (
+              <Card key={address.id}>
+                <CardContent>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value={address.id} id={address.id} />
+                    <div className="flex-1">
+                      <Label htmlFor={address.id} className="cursor-pointer">
+                        <div className="space-y-1">
+                          <p className="font-medium">{address.recipientName}</p>
+                          <p className="text-muted-foreground">
+                            {address.street}, {address.number}
+                          </p>
+                          <p className="text-muted-foreground">
+                            {address.neighborhood}, {address.city} -{" "}
+                            {address.state}
+                          </p>
+                          <p className="text-muted-foreground">
+                            CEP: {address.zipCode}
+                          </p>
+                        </div>
+                      </Label>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            <Card>
+              <CardContent>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="add_new" id="add_new" />
+                  <Label htmlFor="add_new">Adicionar no endereço</Label>
+                </div>
+              </CardContent>
+            </Card>
+          </RadioGroup>
+        )}
         {selectedAdress === "add_new" && (
           <Form {...form}>
             <form
@@ -285,9 +329,9 @@ const Addresses = () => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={CreateShippingAddressMutation.isPending}
+                disabled={createShippingAddressMutation.isPending}
               >
-                {CreateShippingAddressMutation.isPending ? (
+                {createShippingAddressMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />{" "}
                     &quot;Salvando...&quot;
