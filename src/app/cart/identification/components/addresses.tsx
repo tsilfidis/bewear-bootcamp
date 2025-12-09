@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -23,6 +23,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
+import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
+import { useCart } from "@/hooks/queries/use-cart";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
 
 const formSchema = z.object({
@@ -46,11 +48,19 @@ interface AddressesProps {
 }
 
 const Addresses = ({ shippingAddresses }: AddressesProps) => {
-  const [selectedAdress, setSelectedAdress] = useState<string | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const createShippingAddressMutation = useCreateShippingAddress();
+  const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
   const { data: addresses, isLoading } = useUserAddresses({
     initialData: shippingAddresses,
   });
+  const { data: cart } = useCart();
+
+  useEffect(() => {
+    if (cart?.shippingAddress?.id) {
+      setSelectedAddress(cart.shippingAddress.id);
+    }
+  }, [cart]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -75,9 +85,26 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
         await createShippingAddressMutation.mutateAsync(values);
       toast.success("Endereço criado com sucesso!");
       form.reset();
-      setSelectedAdress(newAddress.id);
+      setSelectedAddress(newAddress.id);
+
+      await updateCartShippingAddressMutation.mutateAsync({
+        shippingAddressId: newAddress.id,
+      });
+      toast.success("Endereço vinculado ao carrinho!");
     } catch (error) {
       toast.error("Erro ao criar endereço!");
+    }
+  };
+
+  const handleGoToPayment = async () => {
+    if (selectedAddress || selectedAddress === "add_new") return;
+    try {
+      await updateCartShippingAddressMutation.mutateAsync({
+        shippingAddressId: selectedAddress,
+      });
+      toast.success("Endereço selecionado para entrega!");
+    } catch (error) {
+      toast.error("Erro ao vincular endereço ao carrinho!");
     }
   };
 
@@ -93,7 +120,10 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
             <p>Carregando endereços...</p>
           </div>
         ) : (
-          <RadioGroup value={selectedAdress} onValueChange={setSelectedAdress}>
+          <RadioGroup
+            value={selectedAddress}
+            onValueChange={setSelectedAddress}
+          >
             {addresses?.length === 0 && (
               <div className="py-4 text-center">
                 <p className="text-muted-foreground">
@@ -139,7 +169,27 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
             </Card>
           </RadioGroup>
         )}
-        {selectedAdress === "add_new" && (
+
+        {selectedAddress && selectedAddress !== "add_new" && (
+          <div className="mt-4">
+            <Button
+              onClick={handleGoToPayment}
+              className="w-full"
+              disabled={updateCartShippingAddressMutation.isPending}
+            >
+              {updateCartShippingAddressMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  &quot;Processando...&quot;
+                </>
+              ) : (
+                "Ir para pagamento"
+              )}
+            </Button>
+          </div>
+        )}
+
+        {selectedAddress === "add_new" && (
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -337,9 +387,13 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={createShippingAddressMutation.isPending}
+                disabled={
+                  createShippingAddressMutation.isPending ||
+                  updateCartShippingAddressMutation.isPending
+                }
               >
-                {createShippingAddressMutation.isPending ? (
+                {createShippingAddressMutation.isPending ||
+                updateCartShippingAddressMutation.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />{" "}
                     &quot;Salvando...&quot;
