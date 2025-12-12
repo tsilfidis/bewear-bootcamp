@@ -97,9 +97,9 @@ const Addresses = ({ shippingAddresses, defaultShippingAddressId }: AddressesPro
       await updateCartShippingAddressMutation.mutateAsync({
         shippingAddressId: selectedAddress ?? "",
       });
-      toast.success("Endereço para entrega selecionado!");
+      toast.success("Endereço para entrega selecionado!", {position: "top-center"});
     } catch (error) {
-      toast.error("Erro ao vincular endereço ao carrinho!");
+      toast.error("Erro ao vincular endereço ao carrinho!", {position: "top-center"});
     }
   };
 
