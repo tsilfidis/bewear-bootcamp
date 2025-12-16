@@ -3,12 +3,12 @@ import { redirect } from "next/navigation";
 
 import Footer from "@/components/common/Footer";
 import Header from "@/components/common/header";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/db";
 import { auth } from "@/lib/auth";
 
 import CartSummary from "../components/cart-summary";
+import FinishOrderButton from "./components/finish-order-button";
 
 const ConfirmationPage = async () => {
     const session = await auth.api.getSession({
@@ -54,7 +54,7 @@ const ConfirmationPage = async () => {
                           <p>{cart.shippingAddress?.recipientName}, {cart.shippingAddress?.street}, {cart.shippingAddress?.number}, {cart.shippingAddress?.neighborhood}, {cart.shippingAddress?.city}, {cart.shippingAddress?.state} - CEP: {cart.shippingAddress?.zipCode}</p>
                           </CardContent>
                         </Card>
-                        <Button className="w-full rounded-full" size="lg">Finalizar compra</Button>
+                        <FinishOrderButton />
                     </CardContent>
                 </Card>
                 <CartSummary subtotalInCents={cartTotalInCents} totalInCents={cartTotalInCents} products={cart.items.map(item => ({
