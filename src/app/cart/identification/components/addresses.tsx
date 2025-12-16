@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
@@ -47,7 +48,11 @@ interface AddressesProps {
   defaultShippingAddressId: string | null;
 }
 
-const Addresses = ({ shippingAddresses, defaultShippingAddressId }: AddressesProps) => {
+const Addresses = ({ 
+  shippingAddresses, 
+  defaultShippingAddressId 
+}: AddressesProps) => {
+  const router = useRouter();
   const [selectedAddress, setSelectedAddress] = useState<string | null>(
     defaultShippingAddressId || null,);
   const createShippingAddressMutation = useCreateShippingAddress();
@@ -87,6 +92,7 @@ const Addresses = ({ shippingAddresses, defaultShippingAddressId }: AddressesPro
       toast.success("Endereço vinculado ao carrinho!");
     } catch (error) {
       toast.error("Erro ao criar endereço!");
+      console.error(error);
     }
   };
 
@@ -98,8 +104,10 @@ const Addresses = ({ shippingAddresses, defaultShippingAddressId }: AddressesPro
         shippingAddressId: selectedAddress ?? "",
       });
       toast.success("Endereço para entrega selecionado!", {position: "top-center"});
+      router.push("/cart/confirmation");
     } catch (error) {
       toast.error("Erro ao vincular endereço ao carrinho!", {position: "top-center"});
+      console.error(error);
     }
   };
 
