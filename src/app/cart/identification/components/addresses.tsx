@@ -398,7 +398,7 @@ const Addresses = ({
                 {createShippingAddressMutation.isPending ||
                 updateCartShippingAddressMutation.isPending ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                    <Loader2 className="h-4.5 w-4.5 animate-spin" />{" "}
                     &quot;Salvando...&quot;
                   </>
                 ) : (

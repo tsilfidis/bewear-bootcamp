@@ -1,25 +1,53 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { useFinishOrder } from "@/hooks/mutations/use-finish-order";
 
 const FinishOrderButton = () => {
+    const [successDialogIsOpen, setSuccessDialogIsOpen] = useState(true);
     const finishOrderMutation = useFinishOrder();
     
     return (
+        <>
         <Button 
         className="w-full rounded-full" 
         size="lg" 
         onClick={() => finishOrderMutation.mutate()}
         disabled={finishOrderMutation.isPending}
         >
-            {finishOrderMutation.isPending && (
-                <Loader2 className="animate-spin" />
-                )}
-                Finalizar compra
+            {finishOrderMutation.isPending ? (
+                <>
+                <Loader2 className="h-4.5 w-4.5 animate-spin" />{" "}
+                Finalizando compra...
+                </>
+                ) : ("Finalizar compra")}
+                
             </Button>
+
+            <Dialog open={successDialogIsOpen} onOpenChange={setSuccessDialogIsOpen}>
+            <DialogContent className="text-center">
+                <Image 
+                src="/illustration.svg"
+                alt="Sucesso"
+                width={300}
+                height={300}
+                className="mx-auto"
+                />
+                <DialogTitle className="text-2xl mt-4">Pedido efetuado!</DialogTitle>
+                <DialogDescription className="font-medium">Seu pedido foi efetuado com sucesso. Você pode acompanhar o status na seção de “Meus Pedidos”.</DialogDescription>
+
+                <DialogFooter>
+                    <Button className="rounded-full" variant="ghost" size="lg">Página inicial</Button>
+                    <Button className="rounded-full" size="lg">Ver meus pedidos</Button>
+                </DialogFooter>
+            </DialogContent>
+            </Dialog>
+        </>
     );
 };
 
