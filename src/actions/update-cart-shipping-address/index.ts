@@ -38,9 +38,11 @@ export const updateCartShippingAddress = async (
   const cart = await db.query.cartTable.findFirst({
     where: (cart, { eq }) => eq(cart.userId, session.user.id),
   });
+
   if (!cart) {
     throw new Error("Carrinho não encontrado");
   }
+
   await db
     .update(cartTable)
     .set({

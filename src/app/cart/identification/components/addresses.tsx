@@ -97,7 +97,7 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
   };
 
   const handleGoToPayment = async () => {
-    if (selectedAddress || selectedAddress === "add_new") return;
+    if (!selectedAddress || selectedAddress === "add_new") return;
     try {
       await updateCartShippingAddressMutation.mutateAsync({
         shippingAddressId: selectedAddress,
