@@ -63,7 +63,7 @@ const ConfirmationPage = async () => {
                 </p>
               </CardContent>
             </Card>
-            {/* <FinishOrderButton /> */}
+            <FinishOrderButton />
           </CardContent>
         </Card>
         <CartSummary
