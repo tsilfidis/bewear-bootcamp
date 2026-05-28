@@ -55,7 +55,7 @@ const CartSummary = ({
                 alt={product.name}
                 width={78}
                 height={78}
-                className="rouded-lg"
+                className="rounded-lg"
               />
               <div className="flex flex-col gap-1">
                 <p className="text-xs font-semibold">{product.name}</p>

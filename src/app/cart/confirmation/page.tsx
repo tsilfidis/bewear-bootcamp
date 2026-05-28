@@ -54,7 +54,7 @@ const ConfirmationPage = async () => {
           <CardContent className="space-y-6">
             <Card>
               <CardContent>
-                <p>
+                <p className="text-sm">
                   {cart.shippingAddress?.recipientName},{" "}
                   {cart.shippingAddress?.street}, {cart.shippingAddress?.number}
                   , {cart.shippingAddress?.neighborhood},{" "}
@@ -63,7 +63,7 @@ const ConfirmationPage = async () => {
                 </p>
               </CardContent>
             </Card>
-            <FinishOrderButton />
+            {/* <FinishOrderButton /> */}
           </CardContent>
         </Card>
         <CartSummary

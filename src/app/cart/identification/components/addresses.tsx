@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
@@ -48,6 +49,7 @@ interface AddressesProps {
 }
 
 const Addresses = ({ shippingAddresses }: AddressesProps) => {
+  const router = useRouter();
   const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
   const createShippingAddressMutation = useCreateShippingAddress();
   const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
@@ -103,6 +105,7 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
         shippingAddressId: selectedAddress,
       });
       toast.success("Endereço selecionado para entrega!");
+      router.push("/cart/confirmation");
     } catch (error) {
       toast.error("Erro ao vincular endereço ao carrinho!");
     }
@@ -183,7 +186,7 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
                   &quot;Processando...&quot;
                 </>
               ) : (
-                "Ir para pagamento"
+                "Ir para confirmação"
               )}
             </Button>
           </div>
