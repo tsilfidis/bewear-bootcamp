@@ -29,13 +29,21 @@ export const createCheckoutSession = async (
   const order = await db.query.orderTable.findFirst({
     where: eq(orderTable.id, orderId),
   });
-  if (order?.userId !== session.user.id) {
-    throw new Error("Order is not set for user");
+  if (!order) {
+    throw new Error("Order not found");
   }
+  if (order.userId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
+
   const orderItems = await db.query.orderItemTable.findMany({
     where: eq(orderItemTable.orderId, orderId),
     with: {
-      productVariant: { with: { product: true } },
+      productVariant: {
+        with: {
+          product: true,
+        },
+      },
     },
   });
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -57,7 +65,7 @@ export const createCheckoutSession = async (
             images: [orderItem.productVariant.imageUrl],
           },
           // Em centavos
-          unit_amount: orderItem.priceInCents,
+          unit_amount: orderItem.productVariant.priceInCents,
         },
         quantity: orderItem.quantity,
       };
