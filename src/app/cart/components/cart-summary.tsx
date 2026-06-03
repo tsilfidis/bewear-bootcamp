@@ -48,7 +48,7 @@ const CartSummary = ({
         </div>
 
         {products.map((product) => (
-          <div key={product.id} className="flex items-center justify-between">
+          <div className="flex items-center justify-between" key={product.id}>
             <div className="flex items-center gap-4">
               <Image
                 src={product.imageUrl}

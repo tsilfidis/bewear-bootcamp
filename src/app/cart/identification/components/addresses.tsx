@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -25,7 +25,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-shipping-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
-import { useCart } from "@/hooks/queries/use-cart";
 import { useUserAddresses } from "@/hooks/queries/use-user-addresses";
 
 const formSchema = z.object({
@@ -46,23 +45,22 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface AddressesProps {
   shippingAddresses: (typeof shippingAddressTable.$inferSelect)[];
+  defaultShippingAddressId: string | null;
 }
 
-const Addresses = ({ shippingAddresses }: AddressesProps) => {
+const Addresses = ({
+  shippingAddresses,
+  defaultShippingAddressId,
+}: AddressesProps) => {
   const router = useRouter();
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(
+    defaultShippingAddressId ?? null,
+  );
   const createShippingAddressMutation = useCreateShippingAddress();
   const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
   const { data: addresses, isLoading } = useUserAddresses({
     initialData: shippingAddresses,
   });
-  const { data: cart } = useCart();
-
-  useEffect(() => {
-    if (cart?.shippingAddress?.id) {
-      setSelectedAddress(cart.shippingAddress.id);
-    }
-  }, [cart]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -95,6 +93,7 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
       toast.success("Endereço vinculado ao carrinho!");
     } catch (error) {
       toast.error("Erro ao criar endereço!");
+      console.error(error);
     }
   };
 
@@ -102,12 +101,15 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
     if (!selectedAddress || selectedAddress === "add_new") return;
     try {
       await updateCartShippingAddressMutation.mutateAsync({
-        shippingAddressId: selectedAddress,
+        shippingAddressId: selectedAddress ?? "",
       });
-      toast.success("Endereço selecionado para entrega!");
+      toast.success("Endereço para entrega selecionado!", {
+        position: "top-center",
+      });
       router.push("/cart/confirmation");
     } catch (error) {
-      toast.error("Erro ao vincular endereço ao carrinho!");
+      toast.error("Erro ao vincular endereço ao carrinho!", {position: "top-center"});
+      console.error(error);
     }
   };
 
@@ -398,7 +400,7 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
                 {createShippingAddressMutation.isPending ||
                 updateCartShippingAddressMutation.isPending ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />{" "}
+                    <Loader2 className="h-4.5 w-4.5 animate-spin" />{" "}
                     &quot;Salvando...&quot;
                   </>
                 ) : (

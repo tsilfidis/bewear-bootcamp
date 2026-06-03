@@ -4,7 +4,7 @@ import { finishOrder } from "@/actions/finish-order";
 
 import { getUseCartQueryKey } from "../queries/use-cart";
 
-export const getUseFinishOrderMutationKey = () => ["finish-order"];
+export const getUseFinishOrderMutationKey = () => ["finish-order"] as const;
 
 export const useFinishOrder = () => {
   const queryClient = useQueryClient();

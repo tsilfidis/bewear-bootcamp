@@ -32,9 +32,11 @@ export const updateCartShippingAddress = async (
         eq(shippingAddress.userId, session.user.id),
       ),
   });
+
   if (!shippingAddress) {
     throw new Error("Endereço de entrega não encontrado");
   }
+
   const cart = await db.query.cartTable.findFirst({
     where: (cart, { eq }) => eq(cart.userId, session.user.id),
   });
@@ -47,12 +49,6 @@ export const updateCartShippingAddress = async (
     .update(cartTable)
     .set({
       shippingAddressId: shippingAddress.id,
-    })
-    .where(eq(cartTable.id, cart.id));
-  await db
-    .update(cartTable)
-    .set({
-      shippingAddressId: data.shippingAddressId,
     })
     .where(eq(cartTable.id, cart.id));
 

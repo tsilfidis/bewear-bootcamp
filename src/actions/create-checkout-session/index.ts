@@ -64,8 +64,7 @@ export const createCheckoutSession = async (
             description: orderItem.productVariant.product.description,
             images: [orderItem.productVariant.imageUrl],
           },
-          // Em centavos
-          unit_amount: orderItem.productVariant.priceInCents,
+          unit_amount: orderItem.priceInCents,
         },
         quantity: orderItem.quantity,
       };
