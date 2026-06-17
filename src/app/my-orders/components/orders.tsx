@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 import {
   Accordion,
@@ -9,6 +10,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { orderTable } from "@/db/schema";
@@ -32,6 +34,26 @@ interface OrdersProps {
 }
 
 const Orders = ({ orders }: OrdersProps) => {
+  if (orders.length === 0) {
+    return (
+      <Card className="flex flex-col items-center justify-center py-12 text-center">
+        <CardContent className="space-y-4">
+          <p className="text-xl font-bold tracking-tight">
+            Nenhum pedido por aqui
+          </p>
+          <p className="text-muted-foreground max-w-[280px] text-sm">
+            Você ainda não fez compras. Seus pedidos vão aparecer aqui assim que
+            você finalizar um carrinho.
+          </p>
+          <div className="pt-2">
+            <Button asChild size="sm">
+              <Link href="/">Ir para a loja</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
   return (
     <div className="space-y-5">
       {orders.map((order) => (
